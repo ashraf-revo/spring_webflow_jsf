@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:webflow-config="http://www.springframework.org/schema/webflow-config"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:faces="http://www.springframework.org/schema/faces"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.4.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/faces http://www.springframework.org/schema/faces/spring-faces-2.4.xsd">
+
+	<context:component-scan base-package="org.revo.flow" />
+	<faces:resources  />
+	<mvc:annotation-driven />
+	<mvc:resources location="/" mapping="/resources/**" />
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass" value="org.springframework.faces.mvc.JsfView" />
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".xhtml" />
+	</bean>
+	<faces:flow-builder-services id="flowBuilderServices"
+		development="true" />
+
+	<webflow-config:flow-registry id="flowRegistry"
+		flow-builder-services="flowBuilderServices" base-path="/WEB-INF/flows">
+		<webflow-config:flow-location-pattern
+			value="/**/flow.xml" />
+	</webflow-config:flow-registry>
+
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+		<property name="flowRegistry" ref="flowRegistry" />
+	</bean>
+
+	<bean id="facesContextListener"
+		class="org.springframework.faces.webflow.FlowFacesContextLifecycleListener" />
+
+	<webflow-config:flow-executor id="flowExecutor">
+		<webflow-config:flow-execution-listeners>
+			<webflow-config:listener ref="facesContextListener" />
+		</webflow-config:flow-execution-listeners>
+	</webflow-config:flow-executor>
+
+	<bean class="org.springframework.faces.webflow.JsfFlowHandlerAdapter">
+		<property name="flowExecutor" ref="flowExecutor" />
+	</bean>
+
+</beans>
